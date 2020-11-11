@@ -4,11 +4,17 @@
         $paPDO = initDB();
         $paSRID = '4326';
         
+
         $functionname = $_POST['functionname'];
-        if($functionname != 'getWhereFoodStore'){
+
+
+        if($functionname != 'getWhereFoodStore' && $functionname != 'getTree'){
             $paPoint = $_POST['paPoint'];
         }
 
+        if(isset($_POST['paTreeTime'])){
+            $paTree = $_POST['paTreeTime'];
+        }
        
         $aResult = "null";
         if ($functionname == 'getGeoCMRToAjax')
@@ -31,7 +37,8 @@
             $aResult = getWhereFoodStore($paPDO);
         else if ($functionname == 'getWhereInfoFoodStore')
             $aResult = getWhereInfoFoodStore($paPDO, $paSRID, $paPoint);
-
+        else if ($functionname == 'getTree')
+            $aResult = getTree($paPDO, $paTree);
 
 
         echo $aResult;
@@ -306,5 +313,51 @@ order by pplperstore desc limit 1";
         } else
         return "null";
 }
+
+function getTree($paPDO, $paTree){
+
+     $query = "select st_asgeojson(geom) as geo from tree_inventory where inventory_ like '%". $paTree ."%' limit 3000";
+    $result = query($paPDO, $query);
+    
+    //var_dump($result);
+    //echo  json_encode($result);
+    //error_reporting(0);
+    $options = array(); 
+            foreach ($result as $row){
+                //array_push($options, $row['geo']);
+                $options[] = $row;
+            
+            }
+            //print_r($options[0]);
+            //echo $options;
+            //var_dump($options);
+            return json_encode($options);
+            //return ($options) ;
+
+            // for($i=0;$i<10;$i++){
+            //     return $options[];
+            // }
+            
+            //return ($options);
+
+            // return array(
+            //     'geo' => $options
+            // );
+            //echo json_encode($results);
+}
+// function getCountTree($paPDO, $paTree){
+
+//     $query = "select st_asgeojson(geom) from tree_inventory where inventory_ like '%". $paTree ."%'";
+//     $result = query($paPDO, $query);
+
+//         if ($result != null)
+//         {
+//             // Lặp kết quả
+//             foreach ($result as $item){
+//                 return $item['geo'];
+//             }
+//         } else
+//         return "null";
+// }
 
 ?>

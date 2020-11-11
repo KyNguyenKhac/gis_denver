@@ -73,7 +73,7 @@
         #contain{
             background: white;
             position: absolute;
-            bottom: 85%;
+            bottom: 80%;
             left: 90%; 
             padding: 8px;
             border-radius: 6px;
@@ -83,7 +83,7 @@
         #contain2{
             background: white;
             position: absolute;
-            bottom: 10%;
+            bottom: 5%;
             left: 80%;
             padding: 8px;
             border-radius: 6px;
@@ -101,6 +101,9 @@
             border-radius: 6px;
             z-index: 1001;   
         }
+        #btnRest{
+            border-radius: 8px;
+        }
         </style>
     </head>
     <body onload="initialize_map();">
@@ -117,26 +120,26 @@
                 <input onclick="oncheckfirestations();" type="checkbox" id="fire_stations" name="layer" value="fire_stations"> fire_stations<br />
                 <input onclick="oncheckroutes();" type="checkbox" id="routes" name="layer" value="routes"> routes <br />
                 <input onclick="oncheckdenver()" type="checkbox" id="denver" name="layer" value="denver"> denver<br />
-
+                <button id="btnRest"> Reset</button>
                
             </div>
 
-<!--     <div class="container">
-        <div>Some Tree</div>
-        <hr>
+    <div class="container">
+        <!-- <div>Some Tree</div> -->
+      <!--   <hr> -->
         <div class="row">
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                <input onclick="oncheckdenver()" type="checkbox" id="denver" name="layer" value="denver"> 2015<br />
-                <input onclick="oncheckdenver()" type="checkbox" id="denver" name="layer" value="denver"> 2015<br />
-                <input onclick="oncheckdenver()" type="checkbox" id="denver" name="layer" value="denver"> 2015<br />
+                <input onclick="oncheck2014()" type="checkbox" id="tree2014" name="layer" value="2014"> 2014<br />
+                <input onclick="oncheck2015()" type="checkbox" id="tree2015" name="layer" value="2015"> 2015<br />
+                <input onclick="oncheck2016()" type="checkbox" id="tree2016" name="layer" value="2016"> 2016<br />
             </div>
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                <input onclick="oncheckdenver()" type="checkbox" id="denver" name="layer" value="denver"> 2015<br />
-                <input onclick="oncheckdenver()" type="checkbox" id="denver" name="layer" value="denver"> 2015<br />
-                <input onclick="oncheckdenver()" type="checkbox" id="denver" name="layer" value="denver"> 2015<br />
+                <input onclick="oncheck2017()" type="checkbox" id="tree2017" name="layer" value="2017"> 2017<br />
+                <input onclick="oncheck2018()" type="checkbox" id="tree2018" name="layer" value="2018"> 2018<br />
+                <input onclick="oncheck2019()" type="checkbox" id="tree2019" name="layer" value="2019"> 2019<br />
             </div>
         </div>
-    </div> -->
+    </div>
 
        
             <div id='contain2'>
@@ -206,9 +209,60 @@
                     var vectorLayer = new ol.layer.Vector({
                         source: vectorSource
                     });
-                    map.addLayer(vectorLayer);
+                 
+                        map.addLayer(vectorLayer);
                 }
 
+                function drawGeoJsonObj2(paObjJson) {
+
+                     // var fill = new ol.style.Fill({
+                     //   color: 'rgba(255,255,255,0.4)'
+                     // });
+                     // var stroke = new ol.style.Stroke({
+                     //   color: '#3399CC',
+                     //   width: 1.25
+                     // });                 
+
+                
+                     var icon = new ol.style.Icon({
+                              //anchor: [0.5, 0.5],
+                              //size: [52, 52],
+                              //offset: [52, 0],
+                              //opacity: 0.5,
+                              //scale: 1.0,
+                              src: "./testtree.png",
+                     });
+                    
+                     var style = new ol.style.Style({
+                         image: icon,  // this works, but when I use image: icon, nothing is displayed
+                         // fill: fill,
+                         // stroke: stroke
+                       });  
+
+
+                    var vectorSource = new ol.source.Vector({
+                       
+                        features: (new ol.format.GeoJSON()).readFeatures(paObjJson, {
+                            dataProjection: 'EPSG:4326',
+                            featureProjection: 'EPSG:3857',
+                        })
+                    });
+                    var vectorLayer = new ol.layer.Vector({
+                        source: vectorSource,
+                        style: style,
+                    });
+                 
+                        map.addLayer(vectorLayer);
+                } 
+
+                // function drawGeoJson2(geojson){
+                //     var features = (new ol.format.GeoJSON()).readFeatures(geojson);
+
+                //     features.forEach(function(feature){
+                //         feature.setId(undefined);
+                //         feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+                //     });
+                // }
 
             function displayObjInfo2(result, coordinate) {
                 $("#popup-content").html(result);
@@ -225,6 +279,7 @@
                         //dataType: 'json',
                         data: {functionname: 'getWhereFoodStore'},
                         success : function (result, status, erro) {
+
                             drawGeoJsonObj(result);
                         },
                         error: function (req, status, error) {
@@ -232,7 +287,55 @@
                         }
                     });
 
-        }                                                  
+        } 
+
+        function oncheck2014(){
+            oncheck("tree2014");
+        }
+        function oncheck2015(){
+            oncheck("tree2015");
+        }
+        function oncheck2016(){
+            oncheck("tree2016");
+        }
+        function oncheck2017(){
+            oncheck("tree2017");
+        }
+        function oncheck2018(){
+            oncheck("tree2018");
+        }
+        function oncheck2019(){
+            oncheck("tree2019");
+        }
+
+        function oncheck(id){
+
+             treeTime = document.getElementById(id).value
+            
+
+                    $.ajax({
+                        type: "POST",
+                        url: "backend.php",
+                        //dataType: 'json',
+                        data: {functionname: 'getTree', paTreeTime: treeTime},
+                        success : function (result, status, erro) {
+
+                            //alert(JSON.parse(result));
+                             test=  JSON.parse(result);
+
+                             // check = test[0];
+                             // alert(check['geo']);
+                             for (var i = 0; i < test.length; i++) {
+                                 drawGeoJsonObj2(test[i]['geo']);
+                             }
+                            //drawGeoJsonObj(result);
+                        },
+                        error: function (req, status, error) {
+                            alert(req + " " + status + " " + error);
+                        }
+                    });            
+        }
+
             function initialize_map() {
                 //*
                 layerBG = new ol.layer.Tile({
@@ -291,7 +394,8 @@
                         'VERSION': '1.1.1',
                         STYLES: '',
                         LAYERS: 'neighborhood',
-                    }
+                    },
+                    
                 })
 
             });
@@ -333,15 +437,31 @@
                     }),
                     'MultiPolygon': new ol.style.Style({
                         fill: new ol.style.Fill({
-                            color: 'rgba(46, 81, 163)'
+                            color: 'rgba(201, 24, 45)'
                         }),
                         stroke: new ol.style.Stroke({
-                            color: 'rgba(46, 81, 163)',
-                            width: 3
+                            color: 'black',
+                            width: 2
                         })
                     }),                    
 
                 };
+
+                 // var icon = new ol.style.Icon({
+                 //          anchor: [0.5, 0.5],
+                 //          size: [52, 52],
+                 //          offset: [52, 0],
+                 //          opacity: 0.5,
+                 //          scale: 1.0,
+                 //          src: "./img/mmOrange.png"
+                 // });
+
+                 // var style = new ol.style.Style({
+                 //     image: icon,  // this works, but when I use image: icon, nothing is displayed
+                 //     fill: fill,
+                 //     stroke: stroke
+                 //   });  
+
                 var styleFunction = function (feature) {
                     return styles[feature.getGeometry().getType()];
                 };
@@ -349,7 +469,12 @@
                     //source: vectorSource,
                     style: styleFunction
                 });
+                vectorLayer.setZIndex(1000);
                 map.addLayer(vectorLayer);
+
+            var buttonReset = document.getElementById("btnRest").addEventListener("click", () => {
+                location.reload();
+            })
 
                 function createJsonObj(result) {                    
                     var geojsonObject = '{'
@@ -378,13 +503,14 @@
                     });
 					vectorLayer.setSource(vectorSource);
 
+
                 }
                 function highLightObj(result) {
                    
                     var strObjJson = createJsonObj(result);
                    
                     var objJson = JSON.parse(strObjJson);
-         
+                
                     highLightGeoJsonObj(objJson);
                 }
             function displayObjInfo(result, coordinate) {
